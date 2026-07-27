@@ -1,133 +1,158 @@
+// --------------------------------------------------------
+// Ultra-Premium WebGL & Physics Engine (Active Theory Inspired)
+// --------------------------------------------------------
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Navigation scroll effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.style.background = 'rgba(11, 15, 25, 0.9)';
-            navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.5)';
-        } else {
-            navbar.style.background = 'var(--glass-bg)';
-            navbar.style.boxShadow = 'none';
-        }
+    
+    // ==========================================
+    // 1. Lenis Smooth Scrolling (Inertia Scroll)
+    // ==========================================
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easing for premium feel
+        direction: 'vertical',
+        gestureDirection: 'vertical',
+        smooth: true,
+        mouseMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
     });
 
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-    };
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
 
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('appear');
-                // Optional: stop observing once animation has triggered
-                // observer.unobserve(entry.target);
-            }
+    // Sync GSAP ScrollTrigger with Lenis
+    lenis.on('scroll', ScrollTrigger.update);
+
+    // ==========================================
+    // 2. Custom Physics Cursor
+    // ==========================================
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    let cursorObj = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        
+        // Dot follows exactly
+        cursorDot.style.left = `${mouse.x}px`;
+        cursorDot.style.top = `${mouse.y}px`;
+    });
+
+    // Lerp (Linear Interpolation) loop for the trailing outline
+    function cursorTicker() {
+        // Lerp factor (lower = slower/heavier drag)
+        cursorObj.x += (mouse.x - cursorObj.x) * 0.15;
+        cursorObj.y += (mouse.y - cursorObj.y) * 0.15;
+        
+        cursorOutline.style.left = `${cursorObj.x}px`;
+        cursorOutline.style.top = `${cursorObj.y}px`;
+        
+        requestAnimationFrame(cursorTicker);
+    }
+    cursorTicker();
+
+    // Hover Magnetism on Links
+    const links = document.querySelectorAll('a, .btn');
+    links.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            cursorOutline.classList.add('cursor-hover');
         });
-    }, observerOptions);
+        link.addEventListener('mouseleave', () => {
+            cursorOutline.classList.remove('cursor-hover');
+        });
+    });
 
-    // Elements to animate
-    const animatedElements = document.querySelectorAll('.fade-in, .fade-in-up');
-    animatedElements.forEach(el => observer.observe(el));
-
-    // Initially trigger appear for elements already in viewport (hero section)
-    setTimeout(() => {
-        const heroElements = document.querySelectorAll('.hero .fade-in, .hero .fade-in-up');
-        heroElements.forEach(el => el.classList.add('appear'));
-    }, 100);
-});
-
-// --------------------------------------------------------
-// Three.js & GSAP 3D Background Engine
-// --------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
+    // 3. Three.js Interactive Geometry
+    // ==========================================
     const canvas = document.querySelector('#webgl-canvas');
     if (!canvas || typeof THREE === 'undefined') return;
 
-    // 1. Scene Setup
     const scene = new THREE.Scene();
-    
-    // 2. Camera Setup
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 50; // Pull camera back to see the particles
+    camera.position.z = 30;
 
-    // 3. Renderer Setup
-    const renderer = new THREE.WebGLRenderer({
-        canvas: canvas,
-        alpha: true, // Transparent background
-        antialias: true
-    });
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimization
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // 4. Create 3D Particle Field (Geometry)
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 3000;
-    
-    const posArray = new Float32Array(particlesCount * 3);
-    for(let i = 0; i < particlesCount * 3; i++) {
-        // Spread particles across a wide 3D space (-150 to 150)
-        posArray[i] = (Math.random() - 0.5) * 300;
-    }
-    
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    
-    // Particle Material
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.5,
-        color: 0x38bdf8,
+    // Create an interconnected wireframe sphere (Icosahedron)
+    const geometry = new THREE.IcosahedronGeometry(15, 2);
+    const material = new THREE.MeshBasicMaterial({ 
+        color: 0x38bdf8, 
+        wireframe: true,
         transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
+        opacity: 0.15
     });
-    
-    // Particle Mesh
+    const shapeMesh = new THREE.Mesh(geometry, material);
+    scene.add(shapeMesh);
+
+    // Create a secondary particle system orbiting the shape
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(500 * 3);
+    for(let i = 0; i < 500 * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 100;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({ size: 0.2, color: 0x3b82f6, transparent: true, opacity: 0.6 });
     const particleMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particleMesh);
 
-    // 5. Idle Animation Loop
+    // Render Loop & Mouse Reactivity
     const clock = new THREE.Clock();
     
     function tick() {
         const elapsedTime = clock.getElapsedTime();
         
-        // Gentle continuous rotation
-        particleMesh.rotation.y = elapsedTime * 0.05;
-        particleMesh.rotation.x = elapsedTime * 0.02;
+        // Idle rotation
+        shapeMesh.rotation.y = elapsedTime * 0.1;
+        shapeMesh.rotation.x = elapsedTime * 0.05;
+        particleMesh.rotation.y = elapsedTime * -0.05;
+
+        // React to mouse coordinates (normalized -1 to 1)
+        const normalizedMouseX = (mouse.x / window.innerWidth) * 2 - 1;
+        const normalizedMouseY = -(mouse.y / window.innerHeight) * 2 + 1;
+        
+        // Skew the shape slightly towards the mouse
+        shapeMesh.rotation.x += normalizedMouseY * 0.05;
+        shapeMesh.rotation.y += normalizedMouseX * 0.05;
         
         renderer.render(scene, camera);
         requestAnimationFrame(tick);
     }
     tick();
 
-    // 6. Handle Window Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // 7. GSAP ScrollTrigger Integration (The "Lusion" feel)
-    // Register GSAP ScrollTrigger
+    // ==========================================
+    // 4. Advanced GSAP Parallax & Reveals
+    // ==========================================
     gsap.registerPlugin(ScrollTrigger);
 
-    // Create a timeline that spans the entire scroll height of the page
-    gsap.to(particleMesh.rotation, {
+    // Make the 3D shape react dramatically to scroll depth
+    gsap.to(shapeMesh.rotation, {
         scrollTrigger: {
             trigger: "body",
             start: "top top",
             end: "bottom bottom",
-            scrub: 1 // Smooth scrubbing effect
+            scrub: 1
         },
-        y: Math.PI * 2, // Rotate a full 360 degrees as user scrolls down
-        x: Math.PI * 1,
-        z: Math.PI * 0.5,
+        y: Math.PI * 4,
+        z: Math.PI * 1,
         ease: "none"
     });
     
-    // Move the camera slightly into the particle field as we scroll down
+    // Zoom camera slightly in and out based on sections
     gsap.to(camera.position, {
         scrollTrigger: {
             trigger: "body",
@@ -135,7 +160,46 @@ document.addEventListener('DOMContentLoaded', () => {
             end: "bottom bottom",
             scrub: 2
         },
-        z: 10,
-        ease: "power1.inOut"
+        z: 15,
+        ease: "power2.inOut"
+    });
+
+    // Parallax Artifact Cards
+    // Cards move at slightly different Y speeds as you scroll past them
+    gsap.utils.toArray('.artifact-card').forEach((card, i) => {
+        // Simple odd/even stagger
+        const speed = i % 2 === 0 ? 50 : -50; 
+        
+        gsap.fromTo(card, 
+            { y: speed, opacity: 0 }, 
+            {
+                y: 0,
+                opacity: 1,
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                    end: "top 40%",
+                    scrub: 1
+                }
+            }
+        );
+    });
+
+    // Section Title Text Reveals
+    gsap.utils.toArray('.section-title').forEach(title => {
+        gsap.fromTo(title,
+            { y: 40, opacity: 0, scale: 0.9 },
+            {
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 1,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: title,
+                    start: "top 80%"
+                }
+            }
+        );
     });
 });
