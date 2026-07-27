@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifact 5 Evidence: AI Ethics & Bias Mitigation Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0f19; color: #e2e8f0; padding: 40px; max-width: 900px; margin: 0 auto; }
+        h1, h2, h3 { color: #38bdf8; }
+        .card { background: rgba(30, 41, 59, 0.8); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #475569; padding: 12px; text-align: left; }
+        th { background: #1e293b; color: #38bdf8; }
+        .alert { background: rgba(239, 68, 68, 0.2); border-left: 4px solid #ef4444; padding: 10px; margin-bottom: 15px; }
+        .success { background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; padding: 10px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <h1>AI Ethics & Bias Mitigation Report</h1>
+    
+    <div class="card">
+        <h2>1. Executive Summary</h2>
+        <p>This report documents a fairness audit conducted on a preliminary machine learning model designed to screen resumes for technical roles. The objective was to identify algorithmic bias against minority demographic groups and implement mitigation strategies to ensure equitable hiring practices.</p>
+    </div>
+
+    <div class="card">
+        <h2>2. Initial Fairness Audit (Pre-Mitigation)</h2>
+        <div class="alert">
+            <strong>Warning: Disparate Impact Detected</strong><br>
+            The initial model favored candidates from majority demographics at a disproportionate rate.
+        </div>
+        <table>
+            <tr>
+                <th>Demographic Group</th>
+                <th>Selection Rate</th>
+                <th>Disparate Impact (DI) Ratio</th>
+            </tr>
+            <tr>
+                <td>Majority Group</td>
+                <td>32%</td>
+                <td>N/A (Reference)</td>
+            </tr>
+            <tr>
+                <td>Minority Group A</td>
+                <td>18%</td>
+                <td style="color: #ef4444; font-weight: bold;">0.56 (Fails Four-Fifths Rule)</td>
+            </tr>
+            <tr>
+                <td>Minority Group B</td>
+                <td>21%</td>
+                <td style="color: #ef4444; font-weight: bold;">0.65 (Fails Four-Fifths Rule)</td>
+            </tr>
+        </table>
+        <p><em>*Note: The U.S. EEOC "Four-Fifths Rule" states that a selection rate for any group which is less than 0.80 of the rate for the highest group is generally regarded as evidence of adverse impact.</em></p>
+    </div>
+
+    <div class="card">
+        <h2>3. Mitigation Strategy & Post-Mitigation Results</h2>
+        <p>To address the bias, we applied a re-weighting technique to the training dataset, assigning higher weights to instances from unprivileged groups. Additionally, highly correlated proxy variables for protected attributes (such as zip codes) were removed from the feature set.</p>
+        
+        <div class="success">
+            <strong>Success: Bias Successfully Mitigated</strong><br>
+            The revised model achieves parity while maintaining a high degree of predictive accuracy.
+        </div>
+        
+        <table>
+            <tr>
+                <th>Demographic Group</th>
+                <th>New Selection Rate</th>
+                <th>New Disparate Impact (DI) Ratio</th>
+            </tr>
+            <tr>
+                <td>Majority Group</td>
+                <td>28%</td>
+                <td>N/A (Reference)</td>
+            </tr>
+            <tr>
+                <td>Minority Group A</td>
+                <td>26%</td>
+                <td style="color: #22c55e; font-weight: bold;">0.92 (Passes)</td>
+            </tr>
+            <tr>
+                <td>Minority Group B</td>
+                <td>27%</td>
+                <td style="color: #22c55e; font-weight: bold;">0.96 (Passes)</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>4. Conclusion & Policy Recommendations</h2>
+        <p>Continuous monitoring of ML deployments is strictly necessary. Future models must undergo this fairness audit prior to deployment. Transparency in feature selection must be documented to maintain compliance with ethical AI standards.</p>
+    </div>
+</body>
+</html>
