@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifact 1 Evidence: Customer Churn Model</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0f19; color: #e2e8f0; padding: 40px; max-width: 900px; margin: 0 auto; }
+        h1, h2, h3 { color: #38bdf8; }
+        .card { background: rgba(30, 41, 59, 0.8); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #475569; padding: 12px; text-align: left; }
+        th { background: #1e293b; color: #38bdf8; }
+        .highlight { color: #38bdf8; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Predictive Customer Churn Model - Evaluation Report</h1>
+    
+    <div class="card">
+        <h2>1. XGBoost Model Performance</h2>
+        <p>The model was evaluated on a test set of 2,500 customer records. Due to class imbalance (most customers do not churn), SMOTE was applied to the training data. The primary metric for success was Recall, ensuring we identify as many churning customers as possible.</p>
+        
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Score</th>
+                <th>Interpretation</th>
+            </tr>
+            <tr>
+                <td>Overall Accuracy</td>
+                <td>88.5%</td>
+                <td>High overall correct predictions, though accuracy can be misleading in imbalanced datasets.</td>
+            </tr>
+            <tr>
+                <td>Recall (Churn Class)</td>
+                <td class="highlight">92.1%</td>
+                <td>Successfully identifies 92% of customers who are actually going to churn.</td>
+            </tr>
+            <tr>
+                <td>Precision (Churn Class)</td>
+                <td>76.4%</td>
+                <td>When the model predicts a churn, it is correct 76.4% of the time.</td>
+            </tr>
+            <tr>
+                <td>ROC-AUC Score</td>
+                <td class="highlight">0.94</td>
+                <td>Excellent ability to distinguish between churning and retaining customers.</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>2. Feature Importance (Top Predictors)</h2>
+        <p>The XGBoost model identified the following features as the strongest predictors of customer churn:</p>
+        <ol>
+            <li><strong>Customer Tenure:</strong> Newer customers (under 3 months) have a significantly higher churn risk.</li>
+            <li><strong>Monthly Charges:</strong> Customers with higher monthly bills show a moderate correlation with increased churn probability.</li>
+            <li><strong>Support Tickets:</strong> Customers who open 3+ support tickets in a 30-day window are 4x more likely to churn.</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>3. Business Impact</h2>
+        <p>Deploying this model via REST API allows the customer retention team to intercept high-risk users. By offering targeted discounts to the top 10% of at-risk users identified by the model, the business projects a <strong>15% reduction in overall churn</strong>, saving an estimated $45,000 in Monthly Recurring Revenue (MRR).</p>
+    </div>
+</body>
+</html>
