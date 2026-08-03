@@ -35,6 +35,12 @@ This repository contains the source code for a fully responsive, modern web port
   - **Artifact 1 (Customer Churn):** Added explicit `Introduction` and `Description` headings. Integrated specific skills like `pandas`, `SMOTE`, and `XGBoost`.
   - **Artifact 2 (Computer Vision):** Created `cv_defect_evidence.html` to provide the specific confusion matrix and results table requested by the grader for the 96% accuracy claim.
 
+### Version 4: Artifact 4 (Sales Forecasting Dashboard)
+- **Objective:** Showcase data analysis and business intelligence translation by predicting time-series data.
+- **Actions Taken:**
+  - Configured Artifact 4 on the live portfolio with all precise rubric headings (`Introduction`, `Description`, etc.).
+  - Created `sales_forecasting_evidence.html` as the verifiable supporting file, documenting tangible metrics like MAPE (8.4%) and RMSE, along with actual Python `statsmodels` code implementation.
+
 ---
 
 ## Planned Artifact Repositories
